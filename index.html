@@ -21,34 +21,33 @@
         .btn-primary { background: var(--accent); color: white; transition: all 0.2s; font-weight: 600; }
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        .msg-actions { opacity: 0; transition: 0.2s; }
-        .msg-container:hover .msg-actions { opacity: 1; }
+        #global-announcement { background: linear-gradient(90deg, #4f46e5, #9333ea); display: none; position: relative; z-index: 40; }
     </style>
 </head>
 <body>
 
     <div id="auth-overlay">
         <div class="max-w-md w-full p-8 text-center">
-            <h1 class="text-3xl font-extrabold mb-8 text-white">CHATILLO AMIGO</h1>
-            <button id="google-login" class="w-full bg-white text-slate-900 py-4 rounded-xl font-bold flex items-center justify-center gap-3 hover:bg-slate-100 transition-all shadow-xl">
+            <h1 class="text-3xl font-extrabold mb-8"><img src="/chatillo.png" alt="chatillo-amigo"></h1>
+            <button id="google-login" class="w-full bg-white text-slate-900 py-4 rounded-xl font-bold flex items-center justify-center gap-3 shadow-2xl hover:bg-slate-100 transition-all">
                 <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" class="w-5"> INICIAR SESIÓN
             </button>
         </div>
     </div>
 
     <aside class="sidebar-left gap-4">
-        <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center cursor-pointer hover:rounded-xl transition-all shadow-lg" onclick="window.goHome()">
+        <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center cursor-pointer hover:rounded-xl transition-all" onclick="window.goHome()">
             <i class="fa-solid fa-house"></i>
         </div>
         <div class="w-8 h-px bg-slate-800"></div>
         <div id="aside-groups" class="flex flex-col gap-3"></div>
-        <button onclick="window.openModal('m-group')" class="w-12 h-12 rounded-full bg-slate-800 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all border border-emerald-500/20"><i class="fas fa-plus"></i></button>
-        <button id="btn-master-toggle" class="hidden w-12 h-12 mt-auto rounded-2xl bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-white transition-all border border-amber-500/20"><i class="fas fa-user-shield"></i></button>
+        <button onclick="window.openModal('m-group')" class="w-12 h-12 rounded-full bg-slate-800 text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all"><i class="fas fa-plus"></i></button>
+        <button id="btn-master-toggle" class="hidden w-12 h-12 mt-auto rounded-2xl bg-amber-500/10 text-amber-500 border border-amber-500/20 hover:bg-amber-500 hover:text-white transition-all"><i class="fas fa-user-shield"></i></button>
     </aside>
 
     <aside class="sidebar-main flex flex-col">
         <div class="p-6 h-16 flex items-center justify-between border-b border-slate-800">
-            <h2 class="text-xs font-bold uppercase tracking-widest text-slate-500">Chats Privados</h2>
+            <h2 class="text-xs font-bold uppercase text-slate-500 tracking-widest">Mensajes</h2>
             <button onclick="window.openModal('m-dm')" class="text-slate-500 hover:text-indigo-400"><i class="fas fa-edit"></i></button>
         </div>
         <div id="aside-dms" class="flex-1 overflow-y-auto p-4 space-y-1"></div>
@@ -56,23 +55,27 @@
         <div onclick="window.openUserProfile()" class="p-4 bg-slate-900/50 border-t border-slate-800 flex items-center gap-3 cursor-pointer hover:bg-slate-800 transition-all">
             <img id="u-pfp" class="w-10 h-10 rounded-full border border-slate-700">
             <div class="flex-1 min-w-0">
-                <p id="u-name" class="text-sm font-bold truncate text-slate-200"></p>
-                <div id="u-status-dot" class="text-[10px] text-emerald-400 flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                    <span id="u-status-text">Disponible</span>
+                <p id="u-name" class="text-sm font-bold truncate"></p>
+                <div class="flex items-center gap-1">
+                    <span id="u-status-dot" class="w-2 h-2 rounded-full bg-emerald-500 transition-all duration-300"></span>
+                    <span id="u-status-text" class="text-[10px] text-slate-400">Disponible</span>
                 </div>
             </div>
         </div>
     </aside>
 
     <main class="flex-1 flex flex-col relative bg-[#0f1422]">
+        <div id="global-announcement" class="px-6 py-2 text-center text-xs font-bold text-white shadow-lg">
+            <span id="announcement-text"></span>
+        </div>
+
         <div id="home-screen" class="absolute inset-0 z-[100] bg-[#0b0f1a] flex flex-col items-center justify-center text-center p-10">
-            <div class="grid grid-cols-1 gap-4 w-full max-w-sm">
-                <button onclick="window.openModal('m-group')" class="p-6 bg-slate-800 rounded-2xl hover:bg-slate-700 transition-all group">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-lg">
+                <button onclick="window.openModal('m-group')" class="p-8 bg-slate-800 rounded-3xl font-bold hover:scale-105 transition-all border border-slate-700">                    
                     <img src="https://cdn-icons-png.freepik.com/512/13102/13102467.png" class="w-12 h-12 mx-auto mb-3">
                     <span class="block font-bold">Crear Grupo</span>
                 </button>
-                <button onclick="window.openModal('m-dm')" class="p-6 border border-slate-800 rounded-2xl hover:bg-slate-800 transition-all group">
+                <button onclick="window.openModal('m-dm')" class="p-8 border border-slate-800 rounded-3xl font-bold hover:scale-105 transition-all bg-slate-900/50">
                     <img src="https://cdn-icons-png.freepik.com/512/6437/6437413.png" class="w-12 h-12 mx-auto mb-3">
                     <span class="block font-bold">Chat Privado</span>
                 </button>
@@ -81,87 +84,81 @@
 
         <header class="h-16 px-6 flex items-center justify-between glass border-b border-slate-800 z-50">
             <div class="flex items-center gap-4">
-                <div id="h-icon" class="w-8 h-8 rounded-lg overflow-hidden bg-slate-800"></div>
-                <h3 id="h-name" class="font-bold text-sm"></h3>
+                <div id="h-icon" class="w-9 h-9 rounded-xl overflow-hidden bg-slate-800"></div>
+                <h3 id="h-name" class="font-bold text-sm">Selecciona un chat</h3>
             </div>
-            <button id="btn-manage-group" onclick="window.openGroupSettings()" class="hidden px-4 py-2 bg-indigo-600/10 text-indigo-400 border border-indigo-500/20 rounded-lg text-xs font-bold hover:bg-indigo-600 hover:text-white transition-all">
-                AJUSTES GRUPO
-            </button>
+            <button id="btn-manage-group" onclick="window.openGroupSettings()" class="hidden px-4 py-2 bg-indigo-600/20 text-indigo-400 rounded-lg text-xs font-bold hover:bg-indigo-600 hover:text-white transition-all">GESTIÓN</button>
         </header>
 
         <div id="flow" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
         
-        <div class="p-4 md:px-10 pb-10 relative">
-            <div id="mute-notice" class="hidden absolute inset-0 bg-slate-900/95 z-20 flex items-center justify-center rounded-xl mx-4 md:mx-10 mb-10 border border-red-500/20">
-                <p class="text-xs font-bold text-red-400"><i class="fas fa-lock mr-2"></i> Estás silenciado temporalmente.</p>
+        <div class="p-4 md:px-10 pb-10">
+            <div id="mute-notice" class="hidden p-3 text-center bg-red-500/10 text-red-500 text-[10px] font-bold rounded-xl mb-2 border border-red-500/20 uppercase">
+                <i class="fas fa-lock mr-2"></i> Estás silenciado por el administrador
             </div>
-            <div class="flex gap-3 max-w-5xl mx-auto bg-slate-800/50 p-2 rounded-2xl border border-slate-700 items-end">
-                <button onclick="window.triggerFile()" class="p-3 text-slate-400 hover:text-white"><i class="fas fa-paperclip"></i></button>
-                <input type="file" id="file-in" class="hidden" onchange="window.handleFile(this)">
-                <input type="text" id="m-input" placeholder="Escribe algo..." class="flex-1 bg-transparent px-2 py-3 outline-none text-sm min-h-[44px]">
-                <button onclick="window.send()" class="w-12 h-12 btn-primary rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane"></i></button>
+            <div class="flex gap-3 max-w-5xl mx-auto bg-slate-800/50 p-2 rounded-2xl border border-slate-700 items-center">
+                <button onclick="alert('Función de archivos lista para conectar con Storage')" class="p-3 text-slate-400 hover:text-white transition-all"><i class="fas fa-paperclip"></i></button>
+                <input type="text" id="m-input" placeholder="Escribe un mensaje..." class="flex-1 bg-transparent px-2 py-3 outline-none text-sm text-white">
+                <button onclick="window.send()" class="w-12 h-12 btn-primary rounded-xl flex items-center justify-center shadow-lg active:scale-95"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </main>
 
-    <div id="m-manage" class="modal" onclick="if(event.target===this)window.closeModal('m-manage')">
-        <div class="glass p-8 rounded-3xl w-full max-w-md border border-slate-700">
-            <h2 class="text-xl font-bold mb-6">Gestionar Grupo</h2>
-            
-            <div class="space-y-4 mb-6">
-                <div>
-                    <label class="text-[10px] uppercase font-bold text-slate-500">Nombre del Grupo</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="edit-g-name" class="flex-1 bg-slate-900 p-2 rounded-lg outline-none border border-slate-700 text-sm">
-                        <button onclick="window.updateGroupName()" class="bg-indigo-600 px-3 rounded-lg text-xs">OK</button>
-                    </div>
-                </div>
-                <div>
-                    <label class="text-[10px] uppercase font-bold text-slate-500">Añadir Miembro (Email)</label>
-                    <div class="flex gap-2">
-                        <input type="email" id="add-m-email" class="flex-1 bg-slate-900 p-2 rounded-lg outline-none border border-slate-700 text-sm">
-                        <button onclick="window.addMember()" class="bg-emerald-600 px-3 rounded-lg text-xs"><i class="fas fa-plus"></i></button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="group-members-list" class="space-y-2 max-h-48 overflow-y-auto mb-6"></div>
-            <button onclick="window.closeModal('m-manage')" class="w-full py-3 bg-slate-800 rounded-xl font-bold">Cerrar</button>
-        </div>
-    </div>
-
     <aside id="master-panel">
         <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-indigo-900/20">
             <div>
-                <h2 class="text-lg font-bold">Panel de Control Maestro</h2>
-                <p class="text-[10px] text-indigo-400">IKER DEL MONTE - ADMIN MODE</p>
+                <h2 class="font-black text-amber-500">ADMIN MODE</h2>
+                <p class="text-[10px] text-slate-400">Control total del sistema</p>
             </div>
             <button onclick="document.getElementById('master-panel').classList.remove('open')"><i class="fas fa-times"></i></button>
         </div>
-        
-        <div class="p-4 flex gap-2 border-b border-slate-800">
-            <button onclick="window.openBroadcast()" class="flex-1 py-2 bg-amber-500/20 text-amber-500 border border-amber-500/30 rounded-lg text-xs font-bold">ANUNCIO GLOBAL</button>
-        </div>
+        <div class="p-6 flex-1 overflow-y-auto space-y-8">
+            <div class="space-y-3">
+                <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Anuncio Global (Solo Tú)</h3>
+                <textarea id="in-global-msg" class="w-full bg-slate-900 p-4 rounded-xl text-xs border border-slate-700 outline-none focus:border-indigo-500" placeholder="Escribe lo que todos verán..."></textarea>
+                <div class="flex gap-2">
+                    <button onclick="window.setAnnouncement()" class="flex-1 py-3 bg-indigo-600 text-white font-bold text-xs rounded-xl">PUBLICAR</button>
+                    <button onclick="window.clearAnnouncement()" class="px-4 py-3 bg-slate-800 text-red-500 rounded-xl"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+            
+            <div class="h-px bg-slate-800"></div>
 
-        <div class="p-6 flex-1 overflow-y-auto">
-            <h3 class="text-xs font-bold text-slate-500 uppercase mb-4">Usuarios y Control</h3>
-            <div id="admin-user-list" class="space-y-3"></div>
+            <div class="space-y-4">
+                <h3 class="text-[10px] font-bold text-slate-500 uppercase">Gestión de Usuarios</h3>
+                <div id="admin-user-list" class="space-y-3"></div>
+            </div>
         </div>
     </aside>
 
+    <div id="m-group" class="modal" onclick="if(event.target===this)window.closeModal('m-group')">
+        <div class="glass p-8 rounded-3xl w-full max-w-sm border border-slate-700">
+            <h2 class="text-xl font-bold mb-4">Nuevo Grupo</h2>
+            <input type="text" id="in-g-name" class="w-full bg-slate-900 p-4 rounded-xl mb-4 outline-none border border-slate-700" placeholder="Nombre del grupo">
+            <button onclick="window.createGroup()" class="w-full py-4 btn-primary rounded-xl font-bold">CREAR AHORA</button>
+        </div>
+    </div>
+
+    <div id="m-dm" class="modal" onclick="if(event.target===this)window.closeModal('m-dm')">
+        <div class="glass p-8 rounded-3xl w-full max-w-sm border border-slate-700">
+            <h2 class="text-xl font-bold mb-4">Chat Privado</h2>
+            <input type="email" id="in-d-email" class="w-full bg-slate-900 p-4 rounded-xl mb-4 outline-none border border-slate-700" placeholder="Correo del usuario">
+            <button onclick="window.addFriend()" class="w-full py-4 btn-primary rounded-xl font-bold">EMPEZAR CHAT</button>
+        </div>
+    </div>
+
     <div id="m-user-settings" class="modal" onclick="if(event.target===this)window.closeModal('m-user-settings')">
         <div class="glass p-8 rounded-3xl w-full max-w-sm border border-slate-700 text-center">
-            <img id="u-pfp-large" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-indigo-500">
-            <h2 id="u-name-large" class="text-xl font-bold mb-2"></h2>
-            
-            <select onchange="window.updateStatus(this.value)" class="w-full bg-slate-900 p-3 rounded-xl mb-6 outline-none border border-slate-700 text-sm">
+            <img id="u-pfp-large" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-indigo-600/30">
+            <h2 id="u-name-large" class="text-xl font-bold mb-6 text-white"></h2>
+            <p class="text-[10px] text-slate-500 uppercase font-bold mb-2">Mi Estado</p>
+            <select id="status-select" onchange="window.updateStatus(this.value)" class="w-full bg-slate-900 p-4 rounded-xl mb-8 text-white border border-slate-700 outline-none">
                 <option value="Disponible">🟢 Disponible</option>
                 <option value="Ocupado">🔴 Ocupado</option>
                 <option value="Ausente">🟡 Ausente</option>
                 <option value="Invisible">⚪ Invisible</option>
             </select>
-
-            <button onclick="window.auth.signOut().then(()=>location.reload())" class="w-full py-3 bg-red-500/10 text-red-500 rounded-xl font-bold hover:bg-red-500 hover:text-white transition-all">CERRAR SESIÓN</button>
+            <button onclick="window.auth.signOut().then(()=>location.reload())" class="w-full py-3 bg-red-500/10 text-red-500 rounded-xl font-bold border border-red-500/20">CERRAR SESIÓN</button>
         </div>
     </div>
 
@@ -170,6 +167,7 @@
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, getDoc, setDoc, deleteDoc, updateDoc, where, getDocs, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
+        // CONFIGURACIÓN MAESTRA
         const MASTER_EMAIL = "ikerdelmon@gmail.com"; 
         const firebaseConfig = { apiKey: "AIzaSyAxkmpPmxmABq4XnSD-PqbON4stEO6W2vk", authDomain: "chatillo-amigo.firebaseapp.com", projectId: "chatillo-amigo", appId: "1:120658187031:web:26accfd6ca7c9bb8649d52" };
         
@@ -179,8 +177,9 @@
         const provider = new GoogleAuthProvider();
         window.auth = auth;
 
-        let user = {}, activeRoom = '', isAdmin = false, currentRoomData = null, unsubMsgs = null;
+        let user = {}, activeRoom = '', isAdmin = false, unsubMsgs = null;
 
+        // AUTH
         document.getElementById('google-login').onclick = () => signInWithPopup(auth, provider);
 
         onAuthStateChanged(auth, async (u) => {
@@ -189,15 +188,16 @@
                 isAdmin = (email === MASTER_EMAIL);
                 
                 const userRef = doc(db, "users", u.uid);
-                const userSnap = await getDoc(userRef);
-                const userData = userSnap.exists() ? userSnap.data() : { status: 'Disponible' };
+                const snap = await getDoc(userRef);
+                const data = snap.exists() ? snap.data() : { status: 'Disponible' };
                 
-                if(userData.banned) {
-                    alert("Has sido baneado.");
+                // Verificación de Ban
+                if (data.ban && data.ban > Date.now()) {
+                    alert("Tu cuenta está suspendida hasta: " + new Date(data.ban).toLocaleString());
                     auth.signOut(); return;
                 }
 
-                user = { uid: u.uid, name: u.displayName, pfp: u.photoURL, email, status: userData.status };
+                user = { uid: u.uid, name: u.displayName, pfp: u.photoURL, email, status: data.status, mute: data.mute || false };
                 
                 document.getElementById('auth-overlay').style.display = 'none';
                 document.getElementById('u-name').innerText = user.name;
@@ -210,43 +210,47 @@
                     initAdminPanel();
                 }
 
-                await setDoc(userRef, { name: user.name, email, pfp: user.pfp, lastSeen: serverTimestamp() }, { merge: true });
+                await setDoc(userRef, { name: user.name, email, pfp: user.pfp }, { merge: true });
                 loadRooms();
+                listenAnnouncements();
             }
         });
 
-        // --- GESTIÓN DE SALAS Y MENSAJES ---
-        async function loadRooms() {
+        // MODO DIOS: CARGA DE TODOS LOS CHATS PARA ADMIN
+        function loadRooms() {
             onSnapshot(collection(db, "salas"), (snap) => {
                 const gB = document.getElementById('aside-groups');
                 const dB = document.getElementById('aside-dms');
                 gB.innerHTML = ""; dB.innerHTML = "";
+                
                 snap.forEach(s => {
                     const d = s.data();
-                    if(d.members?.includes(user.email) || isAdmin) {
-                        if(d.type === 'group') {
-                            gB.innerHTML += `<img src="${d.icon}" title="${d.name}" class="w-12 h-12 rounded-2xl cursor-pointer border-2 ${activeRoom === s.id ? 'border-indigo-500' : 'border-transparent'}" onclick="window.join('${s.id}')">`;
+                    // Admin ve todo, usuario solo lo suyo
+                    if (isAdmin || (d.members && d.members.includes(user.email))) {
+                        if (d.type === 'group') {
+                            gB.innerHTML += `<img src="${d.icon}" title="${d.name}" class="w-12 h-12 rounded-2xl cursor-pointer border-2 transition-all ${activeRoom === s.id ? 'border-indigo-500 scale-110 shadow-lg' : 'border-transparent opacity-70 hover:opacity-100'}" onclick="window.join('${s.id}')">`;
                         } else {
-                            const other = d.members.find(m => m !== user.email) || "Tú";
-                            dB.innerHTML += `<div onclick="window.join('${s.id}')" class="p-3 rounded-xl cursor-pointer hover:bg-slate-800 ${activeRoom === s.id ? 'bg-indigo-500/10' : ''}"><p class="text-xs truncate">${other}</p></div>`;
+                            const other = d.members.find(m => m !== user.email) || "Tú (Guardado)";
+                            dB.innerHTML += `<div onclick="window.join('${s.id}')" class="p-3 rounded-xl cursor-pointer hover:bg-indigo-500/10 transition-all ${activeRoom === s.id ? 'bg-indigo-500/20 text-indigo-400' : ''}"><p class="text-xs font-semibold truncate">${other}</p></div>`;
                         }
                     }
                 });
             });
         }
 
+        // UNIRSE A CHAT Y ESCUCHAR MENSAJES
         window.join = async (id) => {
             if(unsubMsgs) unsubMsgs();
             activeRoom = id;
             document.getElementById('home-screen').classList.add('hidden');
             
-            onSnapshot(doc(db, "salas", id), (docSnap) => {
-                currentRoomData = docSnap.data();
-                document.getElementById('h-name').innerText = currentRoomData.name || "Chat Privado";
-                document.getElementById('h-icon').innerHTML = `<img src="${currentRoomData.icon || 'https://ui-avatars.com/api/?name=C'}" class="w-full h-full object-cover">`;
-                
-                const isOwner = currentRoomData.owner === user.email || isAdmin;
-                document.getElementById('btn-manage-group').classList.toggle('hidden', !isOwner || currentRoomData.type !== 'group');
+            onSnapshot(doc(db, "salas", id), (snap) => {
+                const d = snap.data();
+                if(!d) return;
+                document.getElementById('h-name').innerText = d.name || "Chat Privado";
+                document.getElementById('h-icon').innerHTML = `<img src="${d.icon || 'https://ui-avatars.com/api/?background=334155&color=fff&name=Chat'}" class="w-full h-full object-cover">`;
+                // Solo dueño o admin ven gestión
+                document.getElementById('btn-manage-group').classList.toggle('hidden', (d.owner !== user.email && !isAdmin) || d.type !== 'group');
             });
 
             unsubMsgs = onSnapshot(query(collection(db, "salas", id, "mensajes"), orderBy("time", "asc")), (snap) => {
@@ -254,121 +258,132 @@
                 snap.forEach(ds => {
                     const m = ds.data();
                     const isMe = m.uid === user.uid;
-                    flow.innerHTML += `
-                        <div class="flex gap-3 msg-container ${isMe ? 'flex-row-reverse' : ''}">
-                            <img src="${m.pfp}" class="w-8 h-8 rounded-full">
-                            <div class="relative group">
-                                <div class="px-4 py-2 rounded-2xl text-sm ${isMe ? 'bg-indigo-600' : 'bg-slate-800'}">
-                                    ${m.text}
-                                </div>
-                                ${isAdmin ? `<button onclick="window.deleteMsg('${ds.id}')" class="msg-actions absolute -top-2 -right-2 bg-red-500 text-[8px] p-1 rounded-full"><i class="fas fa-trash"></i></button>` : ''}
+                    flow.innerHTML += `<div class="flex gap-3 ${isMe ? 'flex-row-reverse' : ''} animate-in fade-in slide-in-from-bottom-2">
+                        <img src="${m.pfp}" class="w-8 h-8 rounded-full border border-slate-700 self-end">
+                        <div class="max-w-[70%]">
+                            <p class="text-[9px] text-slate-500 mb-1 ${isMe ? 'text-right' : ''}">${m.user}</p>
+                            <div class="px-4 py-2 rounded-2xl text-sm ${isMe ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-slate-800 text-slate-200 rounded-bl-none'} shadow-md">
+                                ${m.text}
                             </div>
-                        </div>`;
+                        </div>
+                        ${isAdmin ? `<button onclick="window.deleteMsg('${ds.id}')" class="text-[10px] text-red-500 self-center hover:scale-125 transition-all"><i class="fas fa-trash-alt"></i></button>` : ''}
+                    </div>`;
                 });
                 flow.scrollTop = flow.scrollHeight;
             });
         };
 
+        // ENVIAR MENSAJE CON CONTROL DE SILENCIO
         window.send = async () => {
             const i = document.getElementById('m-input');
             if(!i.value.trim() || !activeRoom) return;
-            await addDoc(collection(db, "salas", activeRoom, "mensajes"), { 
-                uid: user.uid, user: user.name, pfp: user.pfp, text: i.value, time: serverTimestamp() 
-            });
+
+            // Comprobar Mute en tiempo real
+            const uSnap = await getDoc(doc(db, "users", user.uid));
+            if(uSnap.data().mute && uSnap.data().mute > Date.now()) {
+                document.getElementById('mute-notice').classList.remove('hidden');
+                setTimeout(() => document.getElementById('mute-notice').classList.add('hidden'), 3000);
+                return;
+            }
+
+            await addDoc(collection(db, "salas", activeRoom, "mensajes"), { uid: user.uid, user: user.name, pfp: user.pfp, text: i.value, time: serverTimestamp() });
             i.value = "";
         };
 
-        // --- GESTIÓN DE GRUPOS (AVANZADO) ---
-        window.openGroupSettings = () => {
-            document.getElementById('edit-g-name').value = currentRoomData.name;
-            const list = document.getElementById('group-members-list');
-            list.innerHTML = "";
-            currentRoomData.members.forEach(m => {
-                list.innerHTML += `<div class="flex items-center justify-between bg-slate-900 p-2 rounded-lg">
-                    <span class="text-xs">${m}</span>
-                    ${m !== user.email ? `<button onclick="window.removeMember('${m}')" class="text-red-500"><i class="fas fa-user-minus"></i></button>` : ''}
-                </div>`;
-            });
-            window.openModal('m-manage');
-        };
-
-        window.updateGroupName = async () => {
-            const newName = document.getElementById('edit-g-name').value;
-            await updateDoc(doc(db, "salas", activeRoom), { name: newName });
-        };
-
-        window.addMember = async () => {
-            const email = document.getElementById('add-m-email').value.toLowerCase();
-            if(email) await updateDoc(doc(db, "salas", activeRoom), { members: arrayUnion(email) });
-            document.getElementById('add-m-email').value = "";
-        };
-
-        window.removeMember = async (email) => {
-            await updateDoc(doc(db, "salas", activeRoom), { members: arrayRemove(email) });
-            window.openGroupSettings();
-        };
-
-        // --- PANEL MAESTRO (ADMIN) ---
-        function initAdminPanel() {
-            onSnapshot(collection(db, "users"), (snap) => {
-                const list = document.getElementById('admin-user-list');
-                list.innerHTML = "";
-                snap.forEach(d => {
-                    const u = d.data();
-                    list.innerHTML += `
-                        <div class="p-3 bg-slate-800 rounded-xl space-y-2">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-bold">${u.email}</span>
-                                <span class="text-[9px] ${u.banned ? 'text-red-500' : 'text-emerald-500'}">${u.banned ? 'BANEADO' : 'ACTIVO'}</span>
-                            </div>
-                            <div class="flex gap-1">
-                                <button onclick="window.toggleBan('${d.id}', ${!u.banned})" class="flex-1 py-1 bg-red-500/10 text-red-500 text-[9px] rounded">BAN/UNBAN</button>
-                                <button onclick="window.toggleMute('${d.id}')" class="flex-1 py-1 bg-amber-500/10 text-amber-500 text-[9px] rounded">SILENCIAR</button>
-                            </div>
-                        </div>`;
-                });
+        // ANUNCIOS GLOBALES (SOLO ADMIN)
+        function listenAnnouncements() {
+            onSnapshot(doc(db, "config", "announcement"), (snap) => {
+                const banner = document.getElementById('global-announcement');
+                if(snap.exists() && snap.data().text) {
+                    document.getElementById('announcement-text').innerText = "📢 " + snap.data().text;
+                    banner.style.display = 'block';
+                } else {
+                    banner.style.display = 'none';
+                }
             });
         }
 
-        window.toggleBan = async (uid, state) => { await updateDoc(doc(db, "users", uid), { banned: state }); };
-        window.deleteMsg = async (mid) => { if(confirm("¿Borrar mensaje?")) await deleteDoc(doc(db, "salas", activeRoom, "mensajes", mid)); };
-
-        // --- PERFIL Y ESTADO ---
-        window.openUserProfile = () => {
-            document.getElementById('u-pfp-large').src = user.pfp;
-            document.getElementById('u-name-large').innerText = user.name;
-            window.openModal('m-user-settings');
+        window.setAnnouncement = async () => {
+            if(!isAdmin) return;
+            const t = document.getElementById('in-global-msg').value;
+            await setDoc(doc(db, "config", "announcement"), { text: t });
+            document.getElementById('in-global-msg').value = "";
         };
 
+        window.clearAnnouncement = async () => { if(isAdmin) await setDoc(doc(db, "config", "announcement"), { text: "" }); };
+
+        // CREACIÓN DE SALAS
+        window.createGroup = async () => {
+            const n = document.getElementById('in-g-name').value;
+            if(!n) return;
+            const id = "group_" + Date.now();
+            await setDoc(doc(db, "salas", id), { id, name: n, type: 'group', owner: user.email, members: [user.email], icon: `https://ui-avatars.com/api/?background=6366f1&color=fff&bold=true&name=${n}` });
+            window.closeModal('m-group'); window.join(id);
+        };
+
+        window.addFriend = async () => {
+            const e = document.getElementById('in-d-email').value.toLowerCase().trim();
+            if(!e) return;
+            const id = [user.email, e].sort().join("_").replace(/[@.]/g, "");
+            await setDoc(doc(db, "salas", id), { id, type: 'dm', members: [user.email, e] }, { merge: true });
+            window.closeModal('m-dm'); window.join(id);
+        };
+
+        // ESTADOS
         window.updateStatus = async (val) => {
             await updateDoc(doc(db, "users", user.uid), { status: val });
             window.updateStatusUI(val);
         };
 
         window.updateStatusUI = (val) => {
+            const dot = document.getElementById('u-status-dot');
+            const text = document.getElementById('u-status-text');
             const colors = { Disponible: 'bg-emerald-500', Ocupado: 'bg-red-500', Ausente: 'bg-amber-500', Invisible: 'bg-slate-500' };
-            document.getElementById('u-status-text').innerText = val;
-            document.getElementById('u-status-dot').className = `text-[10px] flex items-center gap-1 ${val==='Disponible'?'text-emerald-400':val==='Ocupado'?'text-red-400':'text-slate-400'}`;
+            text.innerText = val;
+            dot.className = `w-2 h-2 rounded-full ${colors[val] || 'bg-slate-500'}`;
         };
 
-        // Auxiliares
+        // PANEL DE ADMINISTRACIÓN
+        function initAdminPanel() {
+            onSnapshot(collection(db, "users"), (snap) => {
+                const list = document.getElementById('admin-user-list');
+                list.innerHTML = "";
+                snap.forEach(d => {
+                    const u = d.data();
+                    if(u.email === MASTER_EMAIL) return;
+                    list.innerHTML += `<div class="p-4 bg-slate-800/50 rounded-2xl border border-slate-700 flex flex-col gap-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold text-indigo-400 truncate w-32">${u.email}</span>
+                            <span class="text-[9px] px-2 py-0.5 rounded bg-slate-900 ${u.ban > Date.now() ? 'text-red-500' : 'text-emerald-500'}">${u.ban > Date.now() ? 'BANEADO' : 'ACTIVO'}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="window.adminAction('${d.id}', 'ban')" class="flex-1 py-1.5 bg-red-500/20 text-red-500 text-[10px] font-bold rounded-lg border border-red-500/20">BANEO</button>
+                            <button onclick="window.adminAction('${d.id}', 'mute')" class="flex-1 py-1.5 bg-amber-500/20 text-amber-500 text-[10px] font-bold rounded-lg border border-amber-500/20">MUTE</button>
+                        </div>
+                    </div>`;
+                });
+            });
+        }
+
+        window.adminAction = async (uid, type) => {
+            const mins = prompt("Minutos de sanción (0 para perdonar):", "60");
+            if(mins === null) return;
+            const time = parseInt(mins) === 0 ? false : Date.now() + (parseInt(mins) * 60000);
+            await updateDoc(doc(db, "users", uid), { [type]: time });
+            alert("Acción realizada con éxito.");
+        };
+
+        // UTILIDADES
+        window.deleteMsg = async (mid) => { if(confirm("¿Eliminar este mensaje definitivamente?")) await deleteDoc(doc(db, "salas", activeRoom, "mensajes", mid)); };
+        window.openUserProfile = () => {
+            document.getElementById('u-pfp-large').src = user.pfp;
+            document.getElementById('u-name-large').innerText = user.name;
+            document.getElementById('status-select').value = user.status;
+            window.openModal('m-user-settings');
+        };
         window.openModal = (id) => document.getElementById(id).classList.add('active');
         window.closeModal = (id) => document.getElementById(id).classList.remove('active');
         window.goHome = () => { activeRoom = ''; document.getElementById('home-screen').classList.remove('hidden'); };
-        window.triggerFile = () => document.getElementById('file-in').click();
-        window.handleFile = (el) => { alert("Subida de archivos configurada: " + el.files[0].name); };
-        window.createGroup = async () => {
-            const n = document.getElementById('in-g-name').value;
-            const id = "group_" + Date.now();
-            await setDoc(doc(db, "salas", id), { id, name: n, type: 'group', owner: user.email, members: [user.email], icon: `https://ui-avatars.com/api/?background=6366f1&color=fff&name=${n}` });
-            window.closeModal('m-group'); window.join(id);
-        };
-        window.addFriend = async () => {
-            const e = document.getElementById('in-d-email').value.toLowerCase();
-            const id = [user.email, e].sort().join("_").replace(/[@.]/g, "");
-            await setDoc(doc(db, "salas", id), { id, type: 'dm', members: [user.email, e] }, { merge: true });
-            window.closeModal('m-dm'); window.join(id);
-        };
     </script>
 </body>
 </html>
