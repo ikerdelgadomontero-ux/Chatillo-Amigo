@@ -51,7 +51,6 @@
             <button onclick="window.openModal('m-dm')" class="text-slate-500 hover:text-indigo-400"><i class="fas fa-edit"></i></button>
         </div>
         <div id="aside-dms" class="flex-1 overflow-y-auto p-4 space-y-1"></div>
-        
         <div onclick="window.openUserProfile()" class="p-4 bg-slate-900/50 border-t border-slate-800 flex items-center gap-3 cursor-pointer hover:bg-slate-800 transition-all">
             <img id="u-pfp" class="w-10 h-10 rounded-full border border-slate-700">
             <div class="flex-1 min-w-0">
@@ -104,30 +103,38 @@
         </div>
     </main>
 
+    <div id="m-manage-group" class="modal" onclick="if(event.target===this)window.closeModal('m-manage-group')">
+        <div class="glass p-8 rounded-3xl w-full max-w-md border border-slate-700">
+            <h2 class="text-xl font-bold mb-6">Ajustes del Grupo</h2>
+            <div class="space-y-4 mb-6">
+                <input type="text" id="edit-g-name" class="w-full bg-slate-900 p-3 rounded-xl border border-slate-700 text-sm" placeholder="Nombre del grupo">
+                <button onclick="window.updateGroupName()" class="w-full py-2 bg-indigo-600 rounded-xl text-xs font-bold">GUARDAR NOMBRE</button>
+                <div class="h-px bg-slate-800"></div>
+                <div class="flex gap-2">
+                    <input type="email" id="add-m-email" class="flex-1 bg-slate-900 p-3 rounded-xl border border-slate-700 text-sm" placeholder="Añadir por email">
+                    <button onclick="window.addMember()" class="bg-emerald-600 px-4 rounded-xl"><i class="fas fa-user-plus"></i></button>
+                </div>
+            </div>
+            <div id="group-members-list" class="space-y-2 max-h-40 overflow-y-auto mb-6"></div>
+            <button onclick="window.closeModal('m-manage-group')" class="w-full py-3 bg-slate-800 rounded-xl font-bold text-xs">CERRAR</button>
+        </div>
+    </div>
+
     <aside id="master-panel">
         <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-indigo-900/20">
-            <div>
-                <h2 class="font-black text-amber-500">ADMIN MODE</h2>
-                <p class="text-[10px] text-slate-400">Control total del sistema</p>
-            </div>
+            <div><h2 class="font-black text-amber-500">ADMIN MODE</h2><p class="text-[10px] text-slate-400">Control total</p></div>
             <button onclick="document.getElementById('master-panel').classList.remove('open')"><i class="fas fa-times"></i></button>
         </div>
         <div class="p-6 flex-1 overflow-y-auto space-y-8">
             <div class="space-y-3">
-                <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Anuncio Global (Solo Tú)</h3>
-                <textarea id="in-global-msg" class="w-full bg-slate-900 p-4 rounded-xl text-xs border border-slate-700 outline-none focus:border-indigo-500" placeholder="Escribe lo que todos verán..."></textarea>
+                <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">Anuncio Global</h3>
+                <textarea id="in-global-msg" class="w-full bg-slate-900 p-4 rounded-xl text-xs border border-slate-700 outline-none" placeholder="Escribe aquí..."></textarea>
                 <div class="flex gap-2">
                     <button onclick="window.setAnnouncement()" class="flex-1 py-3 bg-indigo-600 text-white font-bold text-xs rounded-xl">PUBLICAR</button>
                     <button onclick="window.clearAnnouncement()" class="px-4 py-3 bg-slate-800 text-red-500 rounded-xl"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
-            
-            <div class="h-px bg-slate-800"></div>
-
-            <div class="space-y-4">
-                <h3 class="text-[10px] font-bold text-slate-500 uppercase">Gestión de Usuarios</h3>
-                <div id="admin-user-list" class="space-y-3"></div>
-            </div>
+            <div class="space-y-4"><h3 class="text-[10px] font-bold text-slate-500 uppercase">Usuarios</h3><div id="admin-user-list" class="space-y-3"></div></div>
         </div>
     </aside>
 
@@ -151,7 +158,6 @@
         <div class="glass p-8 rounded-3xl w-full max-w-sm border border-slate-700 text-center">
             <img id="u-pfp-large" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-indigo-600/30">
             <h2 id="u-name-large" class="text-xl font-bold mb-6 text-white"></h2>
-            <p class="text-[10px] text-slate-500 uppercase font-bold mb-2">Mi Estado</p>
             <select id="status-select" onchange="window.updateStatus(this.value)" class="w-full bg-slate-900 p-4 rounded-xl mb-8 text-white border border-slate-700 outline-none">
                 <option value="Disponible">🟢 Disponible</option>
                 <option value="Ocupado">🔴 Ocupado</option>
@@ -167,7 +173,6 @@
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, getDoc, setDoc, deleteDoc, updateDoc, where, getDocs, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // CONFIGURACIÓN MAESTRA
         const MASTER_EMAIL = "ikerdelmon@gmail.com"; 
         const firebaseConfig = { apiKey: "AIzaSyAxkmpPmxmABq4XnSD-PqbON4stEO6W2vk", authDomain: "chatillo-amigo.firebaseapp.com", projectId: "chatillo-amigo", appId: "1:120658187031:web:26accfd6ca7c9bb8649d52" };
         
@@ -177,28 +182,23 @@
         const provider = new GoogleAuthProvider();
         window.auth = auth;
 
-        let user = {}, activeRoom = '', isAdmin = false, unsubMsgs = null;
+        let user = {}, activeRoom = '', isAdmin = false, currentRoom = null, unsubMsgs = null;
 
-        // AUTH
         document.getElementById('google-login').onclick = () => signInWithPopup(auth, provider);
 
         onAuthStateChanged(auth, async (u) => {
             if (u) {
                 const email = u.email.toLowerCase();
                 isAdmin = (email === MASTER_EMAIL);
-                
                 const userRef = doc(db, "users", u.uid);
                 const snap = await getDoc(userRef);
                 const data = snap.exists() ? snap.data() : { status: 'Disponible' };
                 
-                // Verificación de Ban
                 if (data.ban && data.ban > Date.now()) {
-                    alert("Tu cuenta está suspendida hasta: " + new Date(data.ban).toLocaleString());
-                    auth.signOut(); return;
+                    alert("Cuenta suspendida"); auth.signOut(); return;
                 }
 
-                user = { uid: u.uid, name: u.displayName, pfp: u.photoURL, email, status: data.status, mute: data.mute || false };
-                
+                user = { uid: u.uid, name: u.displayName, pfp: u.photoURL, email, status: data.status };
                 document.getElementById('auth-overlay').style.display = 'none';
                 document.getElementById('u-name').innerText = user.name;
                 document.getElementById('u-pfp').src = user.pfp;
@@ -211,26 +211,22 @@
                 }
 
                 await setDoc(userRef, { name: user.name, email, pfp: user.pfp }, { merge: true });
-                loadRooms();
-                listenAnnouncements();
+                loadRooms(); listenAnnouncements();
             }
         });
 
-        // MODO DIOS: CARGA DE TODOS LOS CHATS PARA ADMIN
         function loadRooms() {
             onSnapshot(collection(db, "salas"), (snap) => {
                 const gB = document.getElementById('aside-groups');
                 const dB = document.getElementById('aside-dms');
                 gB.innerHTML = ""; dB.innerHTML = "";
-                
                 snap.forEach(s => {
                     const d = s.data();
-                    // Admin ve todo, usuario solo lo suyo
-                    if (isAdmin || (d.members && d.members.includes(user.email))) {
+                    if (isAdmin || d.members?.includes(user.email)) {
                         if (d.type === 'group') {
-                            gB.innerHTML += `<img src="${d.icon}" title="${d.name}" class="w-12 h-12 rounded-2xl cursor-pointer border-2 transition-all ${activeRoom === s.id ? 'border-indigo-500 scale-110 shadow-lg' : 'border-transparent opacity-70 hover:opacity-100'}" onclick="window.join('${s.id}')">`;
+                            gB.innerHTML += `<img src="${d.icon}" class="w-12 h-12 rounded-2xl cursor-pointer border-2 transition-all ${activeRoom === s.id ? 'border-indigo-500 scale-110 shadow-lg' : 'border-transparent opacity-70 hover:opacity-100'}" onclick="window.join('${s.id}')">`;
                         } else {
-                            const other = d.members.find(m => m !== user.email) || "Tú (Guardado)";
+                            const other = d.members.find(m => m !== user.email) || "Tú";
                             dB.innerHTML += `<div onclick="window.join('${s.id}')" class="p-3 rounded-xl cursor-pointer hover:bg-indigo-500/10 transition-all ${activeRoom === s.id ? 'bg-indigo-500/20 text-indigo-400' : ''}"><p class="text-xs font-semibold truncate">${other}</p></div>`;
                         }
                     }
@@ -238,98 +234,84 @@
             });
         }
 
-        // UNIRSE A CHAT Y ESCUCHAR MENSAJES
         window.join = async (id) => {
             if(unsubMsgs) unsubMsgs();
             activeRoom = id;
             document.getElementById('home-screen').classList.add('hidden');
             
             onSnapshot(doc(db, "salas", id), (snap) => {
-                const d = snap.data();
-                if(!d) return;
-                document.getElementById('h-name').innerText = d.name || "Chat Privado";
-                document.getElementById('h-icon').innerHTML = `<img src="${d.icon || 'https://ui-avatars.com/api/?background=334155&color=fff&name=Chat'}" class="w-full h-full object-cover">`;
-                // Solo dueño o admin ven gestión
-                document.getElementById('btn-manage-group').classList.toggle('hidden', (d.owner !== user.email && !isAdmin) || d.type !== 'group');
+                currentRoom = snap.data();
+                if(!currentRoom) return;
+                document.getElementById('h-name').innerText = currentRoom.name || "Chat Privado";
+                document.getElementById('h-icon').innerHTML = `<img src="${currentRoom.icon || 'https://ui-avatars.com/api/?name=Chat'}" class="w-full h-full object-cover">`;
+                
+                // GESTIÓN: Visible si eres ADMIN o DUEÑO
+                const canManage = isAdmin || currentRoom.owner === user.email;
+                document.getElementById('btn-manage-group').classList.toggle('hidden', !canManage || currentRoom.type !== 'group');
             });
 
             unsubMsgs = onSnapshot(query(collection(db, "salas", id, "mensajes"), orderBy("time", "asc")), (snap) => {
                 const flow = document.getElementById('flow'); flow.innerHTML = "";
                 snap.forEach(ds => {
-                    const m = ds.data();
-                    const isMe = m.uid === user.uid;
-                    flow.innerHTML += `<div class="flex gap-3 ${isMe ? 'flex-row-reverse' : ''} animate-in fade-in slide-in-from-bottom-2">
+                    const m = ds.data(); const isMe = m.uid === user.uid;
+                    flow.innerHTML += `<div class="flex gap-3 ${isMe ? 'flex-row-reverse' : ''} animate-in fade-in">
                         <img src="${m.pfp}" class="w-8 h-8 rounded-full border border-slate-700 self-end">
                         <div class="max-w-[70%]">
                             <p class="text-[9px] text-slate-500 mb-1 ${isMe ? 'text-right' : ''}">${m.user}</p>
-                            <div class="px-4 py-2 rounded-2xl text-sm ${isMe ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-slate-800 text-slate-200 rounded-bl-none'} shadow-md">
-                                ${m.text}
-                            </div>
+                            <div class="px-4 py-2 rounded-2xl text-sm ${isMe ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-slate-800 text-slate-200 rounded-bl-none shadow-md'}">${m.text}</div>
                         </div>
-                        ${isAdmin ? `<button onclick="window.deleteMsg('${ds.id}')" class="text-[10px] text-red-500 self-center hover:scale-125 transition-all"><i class="fas fa-trash-alt"></i></button>` : ''}
+                        ${isAdmin ? `<button onclick="window.deleteMsg('${ds.id}')" class="text-[10px] text-red-500 self-center"><i class="fas fa-trash-alt"></i></button>` : ''}
                     </div>`;
                 });
                 flow.scrollTop = flow.scrollHeight;
             });
         };
 
-        // ENVIAR MENSAJE CON CONTROL DE SILENCIO
+        // FUNCIONES DE GESTIÓN DE GRUPO
+        window.openGroupSettings = () => {
+            if(!currentRoom) return;
+            document.getElementById('edit-g-name').value = currentRoom.name;
+            const list = document.getElementById('group-members-list');
+            list.innerHTML = "";
+            currentRoom.members.forEach(m => {
+                list.innerHTML += `<div class="flex items-center justify-between bg-slate-900/50 p-2 rounded-xl px-4 border border-slate-800">
+                    <span class="text-xs text-slate-400">${m}</span>
+                    ${m !== user.email ? `<button onclick="window.removeMember('${m}')" class="text-red-500"><i class="fas fa-user-minus"></i></button>` : ''}
+                </div>`;
+            });
+            window.openModal('m-manage-group');
+        };
+
+        window.updateGroupName = async () => {
+            const n = document.getElementById('edit-g-name').value;
+            if(n) await updateDoc(doc(db, "salas", activeRoom), { name: n });
+        };
+
+        window.addMember = async () => {
+            const e = document.getElementById('add-m-email').value.toLowerCase().trim();
+            if(e) await updateDoc(doc(db, "salas", activeRoom), { members: arrayUnion(e) });
+            document.getElementById('add-m-email').value = "";
+            window.openGroupSettings();
+        };
+
+        window.removeMember = async (e) => {
+            await updateDoc(doc(db, "salas", activeRoom), { members: arrayRemove(e) });
+            window.openGroupSettings();
+        };
+
         window.send = async () => {
             const i = document.getElementById('m-input');
             if(!i.value.trim() || !activeRoom) return;
-
-            // Comprobar Mute en tiempo real
             const uSnap = await getDoc(doc(db, "users", user.uid));
             if(uSnap.data().mute && uSnap.data().mute > Date.now()) {
                 document.getElementById('mute-notice').classList.remove('hidden');
-                setTimeout(() => document.getElementById('mute-notice').classList.add('hidden'), 3000);
+                setTimeout(()=>document.getElementById('mute-notice').classList.add('hidden'), 2000);
                 return;
             }
-
             await addDoc(collection(db, "salas", activeRoom, "mensajes"), { uid: user.uid, user: user.name, pfp: user.pfp, text: i.value, time: serverTimestamp() });
             i.value = "";
         };
 
-        // ANUNCIOS GLOBALES (SOLO ADMIN)
-        function listenAnnouncements() {
-            onSnapshot(doc(db, "config", "announcement"), (snap) => {
-                const banner = document.getElementById('global-announcement');
-                if(snap.exists() && snap.data().text) {
-                    document.getElementById('announcement-text').innerText = "📢 " + snap.data().text;
-                    banner.style.display = 'block';
-                } else {
-                    banner.style.display = 'none';
-                }
-            });
-        }
-
-        window.setAnnouncement = async () => {
-            if(!isAdmin) return;
-            const t = document.getElementById('in-global-msg').value;
-            await setDoc(doc(db, "config", "announcement"), { text: t });
-            document.getElementById('in-global-msg').value = "";
-        };
-
-        window.clearAnnouncement = async () => { if(isAdmin) await setDoc(doc(db, "config", "announcement"), { text: "" }); };
-
-        // CREACIÓN DE SALAS
-        window.createGroup = async () => {
-            const n = document.getElementById('in-g-name').value;
-            if(!n) return;
-            const id = "group_" + Date.now();
-            await setDoc(doc(db, "salas", id), { id, name: n, type: 'group', owner: user.email, members: [user.email], icon: `https://ui-avatars.com/api/?background=6366f1&color=fff&bold=true&name=${n}` });
-            window.closeModal('m-group'); window.join(id);
-        };
-
-        window.addFriend = async () => {
-            const e = document.getElementById('in-d-email').value.toLowerCase().trim();
-            if(!e) return;
-            const id = [user.email, e].sort().join("_").replace(/[@.]/g, "");
-            await setDoc(doc(db, "salas", id), { id, type: 'dm', members: [user.email, e] }, { merge: true });
-            window.closeModal('m-dm'); window.join(id);
-        };
-
-        // ESTADOS
         window.updateStatus = async (val) => {
             await updateDoc(doc(db, "users", user.uid), { status: val });
             window.updateStatusUI(val);
@@ -337,28 +319,38 @@
 
         window.updateStatusUI = (val) => {
             const dot = document.getElementById('u-status-dot');
-            const text = document.getElementById('u-status-text');
             const colors = { Disponible: 'bg-emerald-500', Ocupado: 'bg-red-500', Ausente: 'bg-amber-500', Invisible: 'bg-slate-500' };
-            text.innerText = val;
-            dot.className = `w-2 h-2 rounded-full ${colors[val] || 'bg-slate-500'}`;
+            document.getElementById('u-status-text').innerText = val;
+            dot.className = `w-2 h-2 rounded-full ${colors[val]}`;
         };
 
-        // PANEL DE ADMINISTRACIÓN
+        window.setAnnouncement = async () => {
+            if(isAdmin) await setDoc(doc(db, "config", "announcement"), { text: document.getElementById('in-global-msg').value });
+            document.getElementById('in-global-msg').value = "";
+        };
+
+        window.clearAnnouncement = async () => { if(isAdmin) await setDoc(doc(db, "config", "announcement"), { text: "" }); };
+
+        function listenAnnouncements() {
+            onSnapshot(doc(db, "config", "announcement"), (snap) => {
+                const b = document.getElementById('global-announcement');
+                if(snap.exists() && snap.data().text) {
+                    document.getElementById('announcement-text').innerText = "📢 " + snap.data().text;
+                    b.style.display = 'block';
+                } else b.style.display = 'none';
+            });
+        }
+
         function initAdminPanel() {
             onSnapshot(collection(db, "users"), (snap) => {
-                const list = document.getElementById('admin-user-list');
-                list.innerHTML = "";
+                const list = document.getElementById('admin-user-list'); list.innerHTML = "";
                 snap.forEach(d => {
-                    const u = d.data();
-                    if(u.email === MASTER_EMAIL) return;
-                    list.innerHTML += `<div class="p-4 bg-slate-800/50 rounded-2xl border border-slate-700 flex flex-col gap-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs font-bold text-indigo-400 truncate w-32">${u.email}</span>
-                            <span class="text-[9px] px-2 py-0.5 rounded bg-slate-900 ${u.ban > Date.now() ? 'text-red-500' : 'text-emerald-500'}">${u.ban > Date.now() ? 'BANEADO' : 'ACTIVO'}</span>
-                        </div>
+                    const u = d.data(); if(u.email === MASTER_EMAIL) return;
+                    list.innerHTML += `<div class="p-4 bg-slate-800/30 rounded-2xl border border-slate-800 flex flex-col gap-2">
+                        <span class="text-xs font-bold text-indigo-400">${u.email}</span>
                         <div class="flex gap-2">
-                            <button onclick="window.adminAction('${d.id}', 'ban')" class="flex-1 py-1.5 bg-red-500/20 text-red-500 text-[10px] font-bold rounded-lg border border-red-500/20">BANEO</button>
-                            <button onclick="window.adminAction('${d.id}', 'mute')" class="flex-1 py-1.5 bg-amber-500/20 text-amber-500 text-[10px] font-bold rounded-lg border border-amber-500/20">MUTE</button>
+                            <button onclick="window.adminAction('${d.id}', 'ban')" class="flex-1 py-1 bg-red-500/20 text-red-500 text-[10px] rounded-lg">BAN</button>
+                            <button onclick="window.adminAction('${d.id}', 'mute')" class="flex-1 py-1 bg-amber-500/20 text-amber-500 text-[10px] rounded-lg">MUTE</button>
                         </div>
                     </div>`;
                 });
@@ -366,21 +358,26 @@
         }
 
         window.adminAction = async (uid, type) => {
-            const mins = prompt("Minutos de sanción (0 para perdonar):", "60");
-            if(mins === null) return;
-            const time = parseInt(mins) === 0 ? false : Date.now() + (parseInt(mins) * 60000);
-            await updateDoc(doc(db, "users", uid), { [type]: time });
-            alert("Acción realizada con éxito.");
+            const mins = prompt("Minutos (0 quita):", "60");
+            if(mins) await updateDoc(doc(db, "users", uid), { [type]: parseInt(mins) === 0 ? false : Date.now() + (parseInt(mins)*60000) });
         };
 
-        // UTILIDADES
-        window.deleteMsg = async (mid) => { if(confirm("¿Eliminar este mensaje definitivamente?")) await deleteDoc(doc(db, "salas", activeRoom, "mensajes", mid)); };
-        window.openUserProfile = () => {
-            document.getElementById('u-pfp-large').src = user.pfp;
-            document.getElementById('u-name-large').innerText = user.name;
-            document.getElementById('status-select').value = user.status;
-            window.openModal('m-user-settings');
+        window.createGroup = async () => {
+            const n = document.getElementById('in-g-name').value; if(!n) return;
+            const id = "group_" + Date.now();
+            await setDoc(doc(db, "salas", id), { id, name: n, type: 'group', owner: user.email, members: [user.email], icon: `https://ui-avatars.com/api/?background=6366f1&color=fff&name=${n}` });
+            window.closeModal('m-group'); window.join(id);
         };
+
+        window.addFriend = async () => {
+            const e = document.getElementById('in-d-email').value.toLowerCase().trim(); if(!e) return;
+            const id = [user.email, e].sort().join("_").replace(/[@.]/g, "");
+            await setDoc(doc(db, "salas", id), { id, type: 'dm', members: [user.email, e] }, { merge: true });
+            window.closeModal('m-dm'); window.join(id);
+        };
+
+        window.deleteMsg = async (mid) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "salas", activeRoom, "mensajes", mid)); };
+        window.openUserProfile = () => { document.getElementById('u-pfp-large').src = user.pfp; document.getElementById('u-name-large').innerText = user.name; window.openModal('m-user-settings'); };
         window.openModal = (id) => document.getElementById(id).classList.add('active');
         window.closeModal = (id) => document.getElementById(id).classList.remove('active');
         window.goHome = () => { activeRoom = ''; document.getElementById('home-screen').classList.remove('hidden'); };
