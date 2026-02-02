@@ -21,6 +21,8 @@
         .btn-primary { background: var(--accent); color: white; transition: all 0.2s; font-weight: 600; }
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .msg-actions { opacity: 0; transition: 0.2s; }
+        .msg-container:hover .msg-actions { opacity: 1; }
     </style>
 </head>
 <body>
@@ -55,7 +57,10 @@
             <img id="u-pfp" class="w-10 h-10 rounded-full border border-slate-700">
             <div class="flex-1 min-w-0">
                 <p id="u-name" class="text-sm font-bold truncate text-slate-200"></p>
-                <p class="text-[10px] text-emerald-400 flex items-center gap-1"><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>Mi Cuenta</p>
+                <div id="u-status-dot" class="text-[10px] text-emerald-400 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                    <span id="u-status-text">Disponible</span>
+                </div>
             </div>
         </div>
     </aside>
@@ -64,12 +69,12 @@
         <div id="home-screen" class="absolute inset-0 z-[100] bg-[#0b0f1a] flex flex-col items-center justify-center text-center p-10">
             <div class="grid grid-cols-1 gap-4 w-full max-w-sm">
                 <button onclick="window.openModal('m-group')" class="p-6 bg-slate-800 rounded-2xl hover:bg-slate-700 transition-all group">
-                    <img src="https://cdn-icons-png.freepik.com/512/13102/13102467.png" class="w-12 h-12 mx-auto mb-3 opacity-80 group-hover:opacity-100">
-                    <span class="block font-bold text-lg uppercase tracking-wider">Crear Grupo</span>
+                    <img src="https://cdn-icons-png.freepik.com/512/13102/13102467.png" class="w-12 h-12 mx-auto mb-3">
+                    <span class="block font-bold">Crear Grupo</span>
                 </button>
                 <button onclick="window.openModal('m-dm')" class="p-6 border border-slate-800 rounded-2xl hover:bg-slate-800 transition-all group">
-                    <img src="https://cdn-icons-png.freepik.com/512/6437/6437413.png" class="w-12 h-12 mx-auto mb-3 opacity-80 group-hover:opacity-100">
-                    <span class="block font-bold text-lg uppercase tracking-wider">Chat Privado</span>
+                    <img src="https://cdn-icons-png.freepik.com/512/6437/6437413.png" class="w-12 h-12 mx-auto mb-3">
+                    <span class="block font-bold">Chat Privado</span>
                 </button>
             </div>
         </div>
@@ -79,8 +84,8 @@
                 <div id="h-icon" class="w-8 h-8 rounded-lg overflow-hidden bg-slate-800"></div>
                 <h3 id="h-name" class="font-bold text-sm"></h3>
             </div>
-            <button id="btn-manage-group" onclick="window.loadGroupSettings()" class="hidden px-4 py-2 bg-indigo-600/10 text-indigo-400 border border-indigo-500/20 rounded-lg text-xs font-bold hover:bg-indigo-600 hover:text-white transition-all">
-                GESTIONAR GRUPO
+            <button id="btn-manage-group" onclick="window.openGroupSettings()" class="hidden px-4 py-2 bg-indigo-600/10 text-indigo-400 border border-indigo-500/20 rounded-lg text-xs font-bold hover:bg-indigo-600 hover:text-white transition-all">
+                AJUSTES GRUPO
             </button>
         </header>
 
@@ -88,60 +93,82 @@
         
         <div class="p-4 md:px-10 pb-10 relative">
             <div id="mute-notice" class="hidden absolute inset-0 bg-slate-900/95 z-20 flex items-center justify-center rounded-xl mx-4 md:mx-10 mb-10 border border-red-500/20">
-                <p class="text-xs font-bold text-red-400"><i class="fas fa-lock mr-2"></i> Chat silenciado temporalmente.</p>
+                <p class="text-xs font-bold text-red-400"><i class="fas fa-lock mr-2"></i> Estás silenciado temporalmente.</p>
             </div>
-            <div class="flex gap-3 max-w-5xl mx-auto bg-slate-800/50 p-2 rounded-2xl border border-slate-700">
-                <input type="text" id="m-input" placeholder="Escribe un mensaje..." class="flex-1 bg-transparent px-4 py-3 outline-none text-sm">
+            <div class="flex gap-3 max-w-5xl mx-auto bg-slate-800/50 p-2 rounded-2xl border border-slate-700 items-end">
+                <button onclick="window.triggerFile()" class="p-3 text-slate-400 hover:text-white"><i class="fas fa-paperclip"></i></button>
+                <input type="file" id="file-in" class="hidden" onchange="window.handleFile(this)">
+                <input type="text" id="m-input" placeholder="Escribe algo..." class="flex-1 bg-transparent px-2 py-3 outline-none text-sm min-h-[44px]">
                 <button onclick="window.send()" class="w-12 h-12 btn-primary rounded-xl flex items-center justify-center shadow-lg"><i class="fas fa-paper-plane"></i></button>
             </div>
         </div>
     </main>
 
-    <div id="m-group" class="modal" onclick="if(event.target===this)window.closeModal('m-group')">
-        <div class="glass p-8 rounded-3xl w-full max-w-sm border border-slate-700">
-            <h2 class="text-xl font-bold mb-4">Crear Grupo</h2>
-            <input type="text" id="in-g-name" class="w-full bg-slate-900 p-4 rounded-xl mb-6 outline-none border border-slate-700" placeholder="Nombre del grupo">
-            <button onclick="window.createGroup()" class="w-full py-4 btn-primary rounded-xl font-bold">Crear</button>
-        </div>
-    </div>
-
-    <div id="m-dm" class="modal" onclick="if(event.target===this)window.closeModal('m-dm')">
-        <div class="glass p-8 rounded-3xl w-full max-w-sm border border-slate-700">
-            <h2 class="text-xl font-bold mb-4">Nuevo Chat</h2>
-            <input type="email" id="in-d-email" class="w-full bg-slate-900 p-4 rounded-xl mb-6 outline-none border border-slate-700" placeholder="Correo">
-            <button onclick="window.addFriend()" class="w-full py-4 btn-primary rounded-xl font-bold">Conectar</button>
-        </div>
-    </div>
-
     <div id="m-manage" class="modal" onclick="if(event.target===this)window.closeModal('m-manage')">
         <div class="glass p-8 rounded-3xl w-full max-w-md border border-slate-700">
-            <h2 class="text-xl font-bold mb-4">Ajustes del Grupo</h2>
-            <div id="group-members-list" class="space-y-3 max-h-60 overflow-y-auto mb-6"></div>
+            <h2 class="text-xl font-bold mb-6">Gestionar Grupo</h2>
+            
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-slate-500">Nombre del Grupo</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="edit-g-name" class="flex-1 bg-slate-900 p-2 rounded-lg outline-none border border-slate-700 text-sm">
+                        <button onclick="window.updateGroupName()" class="bg-indigo-600 px-3 rounded-lg text-xs">OK</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase font-bold text-slate-500">Añadir Miembro (Email)</label>
+                    <div class="flex gap-2">
+                        <input type="email" id="add-m-email" class="flex-1 bg-slate-900 p-2 rounded-lg outline-none border border-slate-700 text-sm">
+                        <button onclick="window.addMember()" class="bg-emerald-600 px-3 rounded-lg text-xs"><i class="fas fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="group-members-list" class="space-y-2 max-h-48 overflow-y-auto mb-6"></div>
             <button onclick="window.closeModal('m-manage')" class="w-full py-3 bg-slate-800 rounded-xl font-bold">Cerrar</button>
         </div>
     </div>
 
+    <aside id="master-panel">
+        <div class="p-6 border-b border-slate-800 flex justify-between items-center bg-indigo-900/20">
+            <div>
+                <h2 class="text-lg font-bold">Panel de Control Maestro</h2>
+                <p class="text-[10px] text-indigo-400">IKER DEL MONTE - ADMIN MODE</p>
+            </div>
+            <button onclick="document.getElementById('master-panel').classList.remove('open')"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div class="p-4 flex gap-2 border-b border-slate-800">
+            <button onclick="window.openBroadcast()" class="flex-1 py-2 bg-amber-500/20 text-amber-500 border border-amber-500/30 rounded-lg text-xs font-bold">ANUNCIO GLOBAL</button>
+        </div>
+
+        <div class="p-6 flex-1 overflow-y-auto">
+            <h3 class="text-xs font-bold text-slate-500 uppercase mb-4">Usuarios y Control</h3>
+            <div id="admin-user-list" class="space-y-3"></div>
+        </div>
+    </aside>
+
     <div id="m-user-settings" class="modal" onclick="if(event.target===this)window.closeModal('m-user-settings')">
         <div class="glass p-8 rounded-3xl w-full max-w-sm border border-slate-700 text-center">
             <img id="u-pfp-large" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-indigo-500">
-            <h2 id="u-name-large" class="text-xl font-bold text-white"></h2>
-            <p id="u-email-large" class="text-xs text-slate-500 mb-8"></p>
-            <button onclick="window.auth.signOut().then(()=>location.reload())" class="w-full py-3 bg-red-500/10 text-red-500 rounded-xl font-bold hover:bg-red-500 hover:text-white transition-all">Cerrar Sesión</button>
+            <h2 id="u-name-large" class="text-xl font-bold mb-2"></h2>
+            
+            <select onchange="window.updateStatus(this.value)" class="w-full bg-slate-900 p-3 rounded-xl mb-6 outline-none border border-slate-700 text-sm">
+                <option value="Disponible">🟢 Disponible</option>
+                <option value="Ocupado">🔴 Ocupado</option>
+                <option value="Ausente">🟡 Ausente</option>
+                <option value="Invisible">⚪ Invisible</option>
+            </select>
+
+            <button onclick="window.auth.signOut().then(()=>location.reload())" class="w-full py-3 bg-red-500/10 text-red-500 rounded-xl font-bold hover:bg-red-500 hover:text-white transition-all">CERRAR SESIÓN</button>
         </div>
     </div>
 
-    <aside id="master-panel">
-        <div class="p-6 border-b border-slate-800 flex justify-between items-center">
-            <h2 class="text-lg font-bold">Panel Maestro</h2>
-            <button onclick="document.getElementById('master-panel').classList.remove('open')"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="admin-user-list" class="p-6 flex-1 overflow-y-auto space-y-4"></div>
-    </aside>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, getDoc, setDoc, deleteDoc, updateDoc, where, getDocs, arrayRemove, deleteField } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, getDoc, setDoc, deleteDoc, updateDoc, where, getDocs, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const MASTER_EMAIL = "ikerdelmon@gmail.com"; 
         const firebaseConfig = { apiKey: "AIzaSyAxkmpPmxmABq4XnSD-PqbON4stEO6W2vk", authDomain: "chatillo-amigo.firebaseapp.com", projectId: "chatillo-amigo", appId: "1:120658187031:web:26accfd6ca7c9bb8649d52" };
@@ -152,20 +179,30 @@
         const provider = new GoogleAuthProvider();
         window.auth = auth;
 
-        let user = { name: '', pfp: '', uid: '', email: '' };
-        let activeRoom = '', isAdmin = false, currentRoomData = null, unsubMsgs = null;
+        let user = {}, activeRoom = '', isAdmin = false, currentRoomData = null, unsubMsgs = null;
 
         document.getElementById('google-login').onclick = () => signInWithPopup(auth, provider);
 
         onAuthStateChanged(auth, async (u) => {
             if (u) {
                 const email = u.email.toLowerCase();
-                user = { name: u.displayName, pfp: u.photoURL, uid: u.uid, email };
                 isAdmin = (email === MASTER_EMAIL);
                 
+                const userRef = doc(db, "users", u.uid);
+                const userSnap = await getDoc(userRef);
+                const userData = userSnap.exists() ? userSnap.data() : { status: 'Disponible' };
+                
+                if(userData.banned) {
+                    alert("Has sido baneado.");
+                    auth.signOut(); return;
+                }
+
+                user = { uid: u.uid, name: u.displayName, pfp: u.photoURL, email, status: userData.status };
+                
                 document.getElementById('auth-overlay').style.display = 'none';
-                document.getElementById('u-name').innerText = u.displayName;
-                document.getElementById('u-pfp').src = u.photoURL;
+                document.getElementById('u-name').innerText = user.name;
+                document.getElementById('u-pfp').src = user.pfp;
+                window.updateStatusUI(user.status);
 
                 if(isAdmin) {
                     document.getElementById('btn-master-toggle').classList.remove('hidden');
@@ -173,32 +210,12 @@
                     initAdminPanel();
                 }
 
-                await setDoc(doc(db, "users", u.uid), { name: u.displayName, email, pfp: u.photoURL }, { merge: true });
+                await setDoc(userRef, { name: user.name, email, pfp: user.pfp, lastSeen: serverTimestamp() }, { merge: true });
                 loadRooms();
             }
         });
 
-        async function initAdminPanel() {
-            onSnapshot(collection(db, "users"), (snap) => {
-                const list = document.getElementById('admin-user-list');
-                list.innerHTML = "";
-                snap.forEach(d => {
-                    const u = d.data();
-                    list.innerHTML += `<div class="p-3 bg-slate-800 rounded-xl flex items-center justify-between">
-                        <span class="text-xs font-bold">${u.email}</span>
-                        <button onclick="window.kickUser('${d.id}')" class="text-red-500 text-[10px]">Borrar</button>
-                    </div>`;
-                });
-            });
-        }
-
-        window.openUserProfile = () => {
-            document.getElementById('u-pfp-large').src = user.pfp;
-            document.getElementById('u-name-large').innerText = user.name;
-            document.getElementById('u-email-large').innerText = user.email;
-            window.openModal('m-user-settings');
-        };
-
+        // --- GESTIÓN DE SALAS Y MENSAJES ---
         async function loadRooms() {
             onSnapshot(collection(db, "salas"), (snap) => {
                 const gB = document.getElementById('aside-groups');
@@ -206,11 +223,11 @@
                 gB.innerHTML = ""; dB.innerHTML = "";
                 snap.forEach(s => {
                     const d = s.data();
-                    if(d.members?.includes(user.email)) {
+                    if(d.members?.includes(user.email) || isAdmin) {
                         if(d.type === 'group') {
-                            gB.innerHTML += `<img src="${d.icon}" class="w-12 h-12 rounded-2xl cursor-pointer border-2 ${activeRoom === s.id ? 'border-indigo-500' : 'border-transparent'}" onclick="window.join('${s.id}')">`;
+                            gB.innerHTML += `<img src="${d.icon}" title="${d.name}" class="w-12 h-12 rounded-2xl cursor-pointer border-2 ${activeRoom === s.id ? 'border-indigo-500' : 'border-transparent'}" onclick="window.join('${s.id}')">`;
                         } else {
-                            const other = d.members.find(m => m !== user.email);
+                            const other = d.members.find(m => m !== user.email) || "Tú";
                             dB.innerHTML += `<div onclick="window.join('${s.id}')" class="p-3 rounded-xl cursor-pointer hover:bg-slate-800 ${activeRoom === s.id ? 'bg-indigo-500/10' : ''}"><p class="text-xs truncate">${other}</p></div>`;
                         }
                     }
@@ -237,57 +254,121 @@
                 snap.forEach(ds => {
                     const m = ds.data();
                     const isMe = m.uid === user.uid;
-                    flow.innerHTML += `<div class="flex gap-3 ${isMe ? 'flex-row-reverse' : ''}"><img src="${m.pfp}" class="w-8 h-8 rounded-full"><div class="px-4 py-2 rounded-2xl text-sm ${isMe ? 'bg-indigo-600' : 'bg-slate-800'}">${m.text}</div></div>`;
+                    flow.innerHTML += `
+                        <div class="flex gap-3 msg-container ${isMe ? 'flex-row-reverse' : ''}">
+                            <img src="${m.pfp}" class="w-8 h-8 rounded-full">
+                            <div class="relative group">
+                                <div class="px-4 py-2 rounded-2xl text-sm ${isMe ? 'bg-indigo-600' : 'bg-slate-800'}">
+                                    ${m.text}
+                                </div>
+                                ${isAdmin ? `<button onclick="window.deleteMsg('${ds.id}')" class="msg-actions absolute -top-2 -right-2 bg-red-500 text-[8px] p-1 rounded-full"><i class="fas fa-trash"></i></button>` : ''}
+                            </div>
+                        </div>`;
                 });
                 flow.scrollTop = flow.scrollHeight;
             });
         };
 
-        window.loadGroupSettings = () => {
+        window.send = async () => {
+            const i = document.getElementById('m-input');
+            if(!i.value.trim() || !activeRoom) return;
+            await addDoc(collection(db, "salas", activeRoom, "mensajes"), { 
+                uid: user.uid, user: user.name, pfp: user.pfp, text: i.value, time: serverTimestamp() 
+            });
+            i.value = "";
+        };
+
+        // --- GESTIÓN DE GRUPOS (AVANZADO) ---
+        window.openGroupSettings = () => {
+            document.getElementById('edit-g-name').value = currentRoomData.name;
             const list = document.getElementById('group-members-list');
             list.innerHTML = "";
-            currentRoomData.members.forEach(member => {
-                list.innerHTML += `<div class="flex items-center justify-between bg-slate-900 p-3 rounded-xl">
-                    <span class="text-xs text-white">${member}</span>
-                    ${member !== user.email ? `<button onclick="window.kickMember('${member}')" class="text-red-500 text-[10px]">Expulsar</button>` : ''}
+            currentRoomData.members.forEach(m => {
+                list.innerHTML += `<div class="flex items-center justify-between bg-slate-900 p-2 rounded-lg">
+                    <span class="text-xs">${m}</span>
+                    ${m !== user.email ? `<button onclick="window.removeMember('${m}')" class="text-red-500"><i class="fas fa-user-minus"></i></button>` : ''}
                 </div>`;
             });
             window.openModal('m-manage');
         };
 
-        window.kickMember = async (email) => {
-            if(confirm(`¿Expulsar a ${email}?`)) {
-                await updateDoc(doc(db, "salas", activeRoom), { members: arrayRemove(email) });
-                window.loadGroupSettings();
-            }
+        window.updateGroupName = async () => {
+            const newName = document.getElementById('edit-g-name').value;
+            await updateDoc(doc(db, "salas", activeRoom), { name: newName });
         };
 
-        window.send = async () => {
-            const i = document.getElementById('m-input');
-            if(!i.value.trim() || !activeRoom) return;
-            await addDoc(collection(db, "salas", activeRoom, "mensajes"), { uid: user.uid, user: user.name, pfp: user.pfp, text: i.value, time: serverTimestamp() });
-            i.value = "";
+        window.addMember = async () => {
+            const email = document.getElementById('add-m-email').value.toLowerCase();
+            if(email) await updateDoc(doc(db, "salas", activeRoom), { members: arrayUnion(email) });
+            document.getElementById('add-m-email').value = "";
         };
 
+        window.removeMember = async (email) => {
+            await updateDoc(doc(db, "salas", activeRoom), { members: arrayRemove(email) });
+            window.openGroupSettings();
+        };
+
+        // --- PANEL MAESTRO (ADMIN) ---
+        function initAdminPanel() {
+            onSnapshot(collection(db, "users"), (snap) => {
+                const list = document.getElementById('admin-user-list');
+                list.innerHTML = "";
+                snap.forEach(d => {
+                    const u = d.data();
+                    list.innerHTML += `
+                        <div class="p-3 bg-slate-800 rounded-xl space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold">${u.email}</span>
+                                <span class="text-[9px] ${u.banned ? 'text-red-500' : 'text-emerald-500'}">${u.banned ? 'BANEADO' : 'ACTIVO'}</span>
+                            </div>
+                            <div class="flex gap-1">
+                                <button onclick="window.toggleBan('${d.id}', ${!u.banned})" class="flex-1 py-1 bg-red-500/10 text-red-500 text-[9px] rounded">BAN/UNBAN</button>
+                                <button onclick="window.toggleMute('${d.id}')" class="flex-1 py-1 bg-amber-500/10 text-amber-500 text-[9px] rounded">SILENCIAR</button>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
+        window.toggleBan = async (uid, state) => { await updateDoc(doc(db, "users", uid), { banned: state }); };
+        window.deleteMsg = async (mid) => { if(confirm("¿Borrar mensaje?")) await deleteDoc(doc(db, "salas", activeRoom, "mensajes", mid)); };
+
+        // --- PERFIL Y ESTADO ---
+        window.openUserProfile = () => {
+            document.getElementById('u-pfp-large').src = user.pfp;
+            document.getElementById('u-name-large').innerText = user.name;
+            window.openModal('m-user-settings');
+        };
+
+        window.updateStatus = async (val) => {
+            await updateDoc(doc(db, "users", user.uid), { status: val });
+            window.updateStatusUI(val);
+        };
+
+        window.updateStatusUI = (val) => {
+            const colors = { Disponible: 'bg-emerald-500', Ocupado: 'bg-red-500', Ausente: 'bg-amber-500', Invisible: 'bg-slate-500' };
+            document.getElementById('u-status-text').innerText = val;
+            document.getElementById('u-status-dot').className = `text-[10px] flex items-center gap-1 ${val==='Disponible'?'text-emerald-400':val==='Ocupado'?'text-red-400':'text-slate-400'}`;
+        };
+
+        // Auxiliares
+        window.openModal = (id) => document.getElementById(id).classList.add('active');
+        window.closeModal = (id) => document.getElementById(id).classList.remove('active');
+        window.goHome = () => { activeRoom = ''; document.getElementById('home-screen').classList.remove('hidden'); };
+        window.triggerFile = () => document.getElementById('file-in').click();
+        window.handleFile = (el) => { alert("Subida de archivos configurada: " + el.files[0].name); };
         window.createGroup = async () => {
             const n = document.getElementById('in-g-name').value;
-            if(!n) return;
             const id = "group_" + Date.now();
             await setDoc(doc(db, "salas", id), { id, name: n, type: 'group', owner: user.email, members: [user.email], icon: `https://ui-avatars.com/api/?background=6366f1&color=fff&name=${n}` });
             window.closeModal('m-group'); window.join(id);
         };
-
         window.addFriend = async () => {
             const e = document.getElementById('in-d-email').value.toLowerCase();
-            if(!e) return;
             const id = [user.email, e].sort().join("_").replace(/[@.]/g, "");
             await setDoc(doc(db, "salas", id), { id, type: 'dm', members: [user.email, e] }, { merge: true });
             window.closeModal('m-dm'); window.join(id);
         };
-
-        window.openModal = (id) => document.getElementById(id).classList.add('active');
-        window.closeModal = (id) => document.getElementById(id).classList.remove('active');
-        window.goHome = () => { activeRoom = ''; document.getElementById('home-screen').classList.remove('hidden'); };
     </script>
 </body>
 </html>
